@@ -7,7 +7,9 @@ interface ForcastTypes{
     temp2: string;
 }
 
-const ForcastCard = ({day, imagePath, temp1, temp2} : ForcastTypes) => {
+const ForcastCard = async ({ day, imagePath, temp1, temp2 }: ForcastTypes) => {
+    
+    await new Promise((resolve) => setTimeout(resolve, 6000));
     return (<div className="flex flex-col justify-center items-center bg-neutral-800/70 gap-4 rounded-xl py-4 border border-neutral-700/40 w-full sm:px-2">
         <p className="text-sm">{day}</p>
         <Image

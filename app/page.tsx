@@ -8,7 +8,11 @@ import Today from "@/components/Today";
 import HourForcastCard from "@/components/HourForcastCard";
 import { fetchWeatherApi } from "openmeteo";
 import {params} from "@/app/api/weather/openmenteo"
-
+import { Suspense } from "react";
+import TodaySkeleton from "@/components/skeletons/TodaySkeleton";
+import TodayCardsGroupSkeleton from "@/components/skeletons/TodayCardsGroupSkeleton";
+import ForcastCardSkeleton from "@/components/skeletons/ForcastCardSkeleton";
+import HourForcastSkeleton from "@/components/skeletons/HourForcastSkeleton";
 const Home = () => {
 
   return (<div>
@@ -16,21 +20,25 @@ const Home = () => {
     <SearchInput />
     <div className="md:grid md:grid-rows-5 gap-4 grid-cols-3 md:grid-flow-row-dense md:mt-4">
       <div className="md:col-span-2 md:row-span-2">
+    <Suspense fallback={<TodaySkeleton/>}>
         <Today />
+    </Suspense>
       </div>
 
       {/* today cards group  */}
-      <section className="grid gap-2 grid-cols-2  sm:grid-cols-4 w-full mt-3 md:col-span-2 md:row-span-1">
-        <Card title="Feels Like" temperature="64°" />
-        <Card title="Humidity" temperature="46%" />
-        <Card title="Wind" temperature="9 mph" />
-        <Card title="Precipitation" temperature="0 in" />
-      </section>
-
+      <Suspense fallback={<TodayCardsGroupSkeleton/>}>
+        <section className="grid gap-2 grid-cols-2  sm:grid-cols-4 w-full mt-3 md:col-span-2 md:row-span-1">
+          <Card title="Feels Like" temperature="64°" />
+          <Card title="Humidity" temperature="46%" />
+          <Card title="Wind" temperature="9 mph" />
+          <Card title="Precipitation" temperature="0 in" />
+        </section>
+      </Suspense>
       {/* Daily forcast cards  */}
       <section className="md:col-span-2 md:row-span-2">
         <h4 className="mt-4 md:mt-0">Daily forcast</h4>
-        <section  className="grid grid-cols-3 sm:grid-cols-7 w-full mt-1.5 gap-2 mb items-end">
+        <Suspense fallback={<ForcastCardSkeleton/>}>
+          <section  className="grid grid-cols-3 sm:grid-cols-7 w-full mt-1.5 gap-2 mb items-end">
           <ForcastCard day="Tue" imagePath="/images/icon-rain.webp" temp1="68" temp2="57"/>
           <ForcastCard day="Wed" imagePath="/images/icon-drizzle.webp" temp1="68" temp2="57"/>
           <ForcastCard day="Thu" imagePath="/images/icon-sunny.webp" temp1="68" temp2="57"/>
@@ -39,6 +47,7 @@ const Home = () => {
           <ForcastCard day="Sun" imagePath="/images/icon-snow.webp" temp1="68" temp2="57"/>
           <ForcastCard day="Mon" imagePath="/images/icon-fog.webp" temp1="68" temp2="57"/>
         </section>
+        </Suspense>
       </section>
 
       {/* hour forcast  group*/}
@@ -47,7 +56,8 @@ const Home = () => {
           <h4>Hourly forcast</h4>
           <Dropdown />
         </div>
-        <div className="flex flex-col gap-2.5 justify-between mx-3 items-center mb-3 md:gap-4">
+        <Suspense fallback={<HourForcastSkeleton/>}>
+          <div className="flex flex-col gap-2.5 justify-between mx-3 items-center mb-3 md:gap-4">
 
           <HourForcastCard imagePath="/images/icon-rain.webp" time="3 PM" temperature={68}/>
           <HourForcastCard imagePath="/images/icon-rain.webp" time="3 PM" temperature={20}/>
@@ -58,6 +68,7 @@ const Home = () => {
           <HourForcastCard imagePath="/images/icon-snow.webp" time="3 PM" temperature={33}/>
           <HourForcastCard imagePath="/images/icon-fog.webp" time="3 PM" temperature={10}/>
         </div>
+        </Suspense>
       </section>
     </div>
     <footer>

@@ -1,6 +1,9 @@
 import Image from "next/image";
+import { resolve } from "path";
 
-const Today = () => {
+const Today = async () => {
+    
+    await new Promise((resolve) => setTimeout(resolve, 6000));
     return (
         <section 
             className="relative w-full sm:max-w-[800px] sm:mx-auto  h-[280px] mt-4 md:mt-0 max-[375px]:bg-[url('../public/images/bg-today-small.svg')] min-[375px]:bg-[url('../public/images/bg-today-large.svg')] bg-center  bg-no-repeat rounded-2xl"

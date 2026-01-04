@@ -48,7 +48,7 @@ const [unitDropdown, setUnitDropdown] = React.useState<boolean>(false)
     return (<div>
         <div ref={unitButtonRef}
             className={clsx("flex items-center gap-1 bg-neutral-800 py-1 px-2 rounded-md cursor-pointer transition-all hover:bg-neutral-700 ease-in-out duration-150 active:bg-neutral-600",
-            unitDropdown && "outline-1 outline-white")}>
+            unitDropdown && "outline-offset-2 outline-1 outline-white")}>
                 <Settings className="w-4"/>
                 <p >Units</p>
                 <ChevronDown className="w-5 -mx-0.5"/>
