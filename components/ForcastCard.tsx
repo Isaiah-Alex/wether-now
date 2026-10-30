@@ -1,28 +1,26 @@
 import Image from "next/image";
+import { getWeatherInfo } from "@/lib/weather-codes";
 
-interface ForcastTypes{
-    day: "Mon" | "Tue" | "Wed" | "Thu" | "Fri" | "Sat" | "Sun";
-    imagePath: string;
-    temp1: string;
-    temp2: string;
+interface ForcastTypes {
+  day: string;
+  weatherCode: number;
+  tempMax: string;
+  tempMin: string;
 }
 
-const ForcastCard = async ({ day, imagePath, temp1, temp2 }: ForcastTypes) => {
-    
-    await new Promise((resolve) => setTimeout(resolve, 6000));
-    return (<div className="flex flex-col justify-center items-center bg-neutral-800/70 gap-4 rounded-xl py-4 border border-neutral-700/40 w-full sm:px-2">
-        <p className="text-sm">{day}</p>
-        <Image
-            src={imagePath}
-            width={70}
-            height={70}
-            alt="weather icon"
-        />
-        <div className="flex justify-center gap-x-12 sm:justify-between sm:gap-x-0 w-full">
-            <p className="text-bold text-sm *:">{temp1}°</p>
-            <p className="text-sm opacity-70">{ temp2}°</p> 
-        </div>
-    </div> );
-}
- 
+const ForcastCard = ({ day, weatherCode, tempMax, tempMin }: ForcastTypes) => {
+  const { icon, label } = getWeatherInfo(weatherCode);
+
+  return (
+    <div className="flex flex-col justify-center items-center bg-neutral-800/70 gap-4 rounded-xl py-4 border border-neutral-700/40 w-full sm:px-2">
+      <p className="text-sm">{day}</p>
+      <Image src={icon} width={70} height={70} alt={label} />
+      <div className="flex justify-center gap-x-12 sm:justify-between sm:gap-x-0 w-full">
+        <p className="text-sm font-bold">{tempMax}°</p>
+        <p className="text-sm opacity-70">{tempMin}°</p>
+      </div>
+    </div>
+  );
+};
+
 export default ForcastCard;

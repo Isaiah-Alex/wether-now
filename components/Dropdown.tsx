@@ -1,71 +1,95 @@
-"use client"
+"use client";
 
-import React from "react"
-
-import { ChevronDown, Check } from 'lucide-react'
+import { useEffect, useRef, useState } from "react";
+import { Check, ChevronDown } from "lucide-react";
 import clsx from "clsx";
 
+export interface DropdownOption {
+  label: string;
+  value: string;
+}
 
-function Dropdown() {
-  const [selectedDay, setSelectedDay] = React.useState<string>("Tuesday");
-  const [isDropdowonOpen, setIsDropdownOpen] = React.useState<boolean>(false);
-  const dropdownRef = React.useRef<HTMLDivElement>(null);
-  const buttonRef = React.useRef<HTMLDivElement>(null);
+interface DropdownProps {
+  options: DropdownOption[];
+  value: string;
+  onChange: (value: string) => void;
+}
 
+const Dropdown = ({ options, value, onChange }: DropdownProps) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  React.useEffect(() => {
-    const handleOpenDropdown = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsDropdownOpen(false);
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handlePointerDown = (event: PointerEvent) => {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(event.target as Node)
+      ) {
+        setIsOpen(false);
       }
-      else if (buttonRef.current && buttonRef.current.contains(event.target as Node)) {
-        setIsDropdownOpen(prev => !prev);
-      }
-    }
+    };
 
-      document.addEventListener('mousedown', handleOpenDropdown)
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setIsOpen(false);
+    };
 
-      return () => {
-        document.removeEventListener('mousedown', handleOpenDropdown);
-      }
-  
-  },[isDropdowonOpen])
-  
-  const daysOfWeek = [
-    "Sunday",
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-    "Saturday"
-  ]
+    document.addEventListener("pointerdown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isOpen]);
+
+  const selected = options.find((option) => option.value === value);
 
   return (
-    <div className="relative">
-      <div ref={buttonRef}
-        className={clsx("flex items-center gap-1 bg-neutral-800 py-1 px-2 rounded-md cursor-pointer transition-all hover:bg-neutral-700 ease-in-out duration-150 active:bg-neutral-600",
-          isDropdowonOpen && "outline-offset-2 outline-1 outline-white"
-        )}>
-          <p >{selectedDay}</p>
-          <ChevronDown className="w-5 -mx-0.5"/>
-      </div>
-      {isDropdowonOpen && <div ref={dropdownRef}
-        className={clsx(" bg-neutral-800/90 absolute top-11 right-0 rounded-xl border border-neutral-700 w-50 z-11 px-2 py-1.5",)}>
-        {daysOfWeek.map((day) => (
-          <div onClick={() => {
-            setSelectedDay(day);
-          }}
-            className={clsx("flex justify-between cursor-pointerrounded-sm px-3 py-1.5 cursor-pointer hover:outline hover:outline-white rounded-md",
-              selectedDay === day && "bg-neutral-700/50"
-            )}
-            key={day}
-          ><p>{day}</p>
-          {selectedDay === day && <Check/>}</div>
-        ))}
-      </div>}
-   </div>
-  )
-}
+    <div className="relative" ref={containerRef}>
+      <button
+        type="button"
+        aria-haspopup="listbox"
+        aria-expanded={isOpen}
+        onClick={() => setIsOpen((open) => !open)}
+        className={clsx(
+          "flex items-center gap-1 bg-neutral-800 py-1 px-2 rounded-md cursor-pointer transition-all hover:bg-neutral-700 ease-in-out duration-150 active:bg-neutral-600",
+          isOpen && "outline-offset-2 outline-1 outline-white",
+        )}
+      >
+        <span>{selected?.label ?? "Select"}</span>
+        <ChevronDown className="w-5 -mx-0.5" />
+      </button>
+
+      {isOpen && (
+        <div
+          role="listbox"
+          className="bg-neutral-800/90 absolute top-11 right-0 rounded-xl border border-neutral-700 w-56 z-20 px-2 py-1.5 shadow-lg"
+        >
+          {options.map((option) => (
+            <button
+              type="button"
+              role="option"
+              aria-selected={option.value === value}
+              key={option.value}
+              onClick={() => {
+                onChange(option.value);
+                setIsOpen(false);
+              }}
+              className={clsx(
+                "flex w-full items-center justify-between rounded-md px-3 py-1.5 text-left cursor-pointer hover:outline hover:outline-white",
+                option.value === value && "bg-neutral-700/50",
+              )}
+            >
+              <span>{option.label}</span>
+              {option.value === value && <Check className="w-4" />}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
 
 export default Dropdown;

@@ -1,7 +1,7 @@
-import Skeleton from "@/components/Skeleton";
+import DashboardSkeleton from "@/components/skeletons/DashboardSkeleton";
 
 const Loading = () => {
-    return ( <div><Skeleton/></div> );
-}
- 
+  return <DashboardSkeleton />;
+};
+
 export default Loading;

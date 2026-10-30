@@ -1,36 +1,58 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Weather App
+
+A weather dashboard built with **Next.js 16 (App Router)**, **React 19**, **Tailwind CSS v4** and **shadcn/ui**. Weather and geocoding data come from [Open-Meteo](https://open-meteo.com), which requires no API key.
+
+## Features
+
+- Current conditions for any searched city (temperature, feels-like, humidity, wind, precipitation).
+- 7-day daily forecast with WMO weather icons.
+- Hourly forecast with a day selector.
+- Unit switching (Celsius/Fahrenheit, km/h/mph, mm/in) that persists in the URL.
+- Location and units are stored in the URL, so any view can be shared or bookmarked.
+- Streaming UI with `Suspense` skeletons and an error boundary with retry.
 
 ## Getting Started
 
-First, run the development server:
-
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000). The default location is Benin City, Nigeria.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## How it works
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Path | Purpose |
+| --- | --- |
+| `lib/weather.ts` | Typed Open-Meteo forecast client and value formatters. |
+| `lib/weather-codes.ts` | WMO weather code → icon/label mapping. |
+| `lib/format.ts` | Timezone-safe date and hour formatting. |
+| `lib/search-params.ts` | URL parameter parsing/building, defaults and unit options. |
+| `app/api/geocode/route.ts` | Server proxy for the Open-Meteo geocoding API. |
+| `app/page.tsx` | Reads `searchParams`, renders the streamed dashboard sections. |
+| `components/SearchInput.tsx` | Debounced place search with keyboard navigation. |
+| `components/UnitDropdown.tsx` | Unit selection written back to the URL. |
+| `components/HourlyForecast*.tsx` | Hourly data fetch and interactive day selector. |
 
-## Learn More
+### URL parameters
 
-To learn more about Next.js, take a look at the following resources:
+```
+/?lat=6.335&lon=5.604&name=Benin+City&country=Nigeria&admin1=Edo&t=celsius&w=kmh&p=mm
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- `t`: `celsius` | `fahrenheit`
+- `w`: `kmh` | `mph`
+- `p`: `mm` | `inch`
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Scripts
 
-## Deploy on Vercel
+```bash
+npm run dev     # development server
+npm run build   # production build
+npm run start   # production server
+npm run lint    # ESLint
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Attribution
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Weather data by [Open-Meteo.com](https://open-meteo.com) (CC BY 4.0).

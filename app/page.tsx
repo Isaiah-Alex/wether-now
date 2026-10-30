@@ -1,80 +1,70 @@
-import Button from "@/components/Button";
-import Card from "@/components/Card";
-import Dropdown from "@/components/Dropdown";
-import ForcastCard from "@/components/ForcastCard";
+import { Suspense } from "react";
+
+import DailyForecast from "@/components/DailyForecast";
 import Hero from "@/components/Hero";
+import HourlyForecast from "@/components/HourlyForecast";
 import SearchInput from "@/components/SearchInput";
 import Today from "@/components/Today";
-import HourForcastCard from "@/components/HourForcastCard";
-import { fetchWeatherApi } from "openmeteo";
-import {params} from "@/app/api/weather/openmenteo"
-import { Suspense } from "react";
-import TodaySkeleton from "@/components/skeletons/TodaySkeleton";
-import TodayCardsGroupSkeleton from "@/components/skeletons/TodayCardsGroupSkeleton";
+import TodayCards from "@/components/TodayCards";
 import ForcastCardSkeleton from "@/components/skeletons/ForcastCardSkeleton";
 import HourForcastSkeleton from "@/components/skeletons/HourForcastSkeleton";
-const Home = () => {
+import TodayCardsGroupSkeleton from "@/components/skeletons/TodayCardsGroupSkeleton";
+import TodaySkeleton from "@/components/skeletons/TodaySkeleton";
+import { parseWeatherParams } from "@/lib/search-params";
 
-  return (<div>
-    <Hero />
-    <SearchInput />
-    <div className="md:grid md:grid-rows-5 gap-4 grid-cols-3 md:grid-flow-row-dense md:mt-4">
-      <div className="md:col-span-2 md:row-span-2">
-    <Suspense fallback={<TodaySkeleton/>}>
-        <Today />
-    </Suspense>
+interface HomeProps {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}
+
+const Home = async ({ searchParams }: HomeProps) => {
+  const { location, units } = parseWeatherParams(await searchParams);
+
+  return (
+    <div>
+      <Hero />
+
+      <Suspense fallback={<div className="h-[76px] mt-8" />}>
+        <SearchInput />
+      </Suspense>
+
+      <div className="md:grid md:grid-rows-5 gap-4 grid-cols-3 md:grid-flow-row-dense md:mt-4">
+        <div className="md:col-span-2 md:row-span-2">
+          <Suspense fallback={<TodaySkeleton />}>
+            <Today location={location} units={units} />
+          </Suspense>
+        </div>
+
+        <Suspense fallback={<TodayCardsGroupSkeleton />}>
+          <TodayCards location={location} units={units} />
+        </Suspense>
+
+        <section className="md:col-span-2 md:row-span-2">
+          <h4 className="mt-4 md:mt-0">Daily forecast</h4>
+          <Suspense fallback={<ForcastCardSkeleton />}>
+            <DailyForecast location={location} units={units} />
+          </Suspense>
+        </section>
+
+        <Suspense fallback={<HourForcastSkeleton />}>
+          <HourlyForecast location={location} units={units} />
+        </Suspense>
       </div>
 
-      {/* today cards group  */}
-      <Suspense fallback={<TodayCardsGroupSkeleton/>}>
-        <section className="grid gap-2 grid-cols-2  sm:grid-cols-4 w-full mt-3 md:col-span-2 md:row-span-1">
-          <Card title="Feels Like" temperature="64°" />
-          <Card title="Humidity" temperature="46%" />
-          <Card title="Wind" temperature="9 mph" />
-          <Card title="Precipitation" temperature="0 in" />
-        </section>
-      </Suspense>
-      {/* Daily forcast cards  */}
-      <section className="md:col-span-2 md:row-span-2">
-        <h4 className="mt-4 md:mt-0">Daily forcast</h4>
-        <Suspense fallback={<ForcastCardSkeleton/>}>
-          <section  className="grid grid-cols-3 sm:grid-cols-7 w-full mt-1.5 gap-2 mb items-end">
-          <ForcastCard day="Tue" imagePath="/images/icon-rain.webp" temp1="68" temp2="57"/>
-          <ForcastCard day="Wed" imagePath="/images/icon-drizzle.webp" temp1="68" temp2="57"/>
-          <ForcastCard day="Thu" imagePath="/images/icon-sunny.webp" temp1="68" temp2="57"/>
-          <ForcastCard day="Fri" imagePath="/images/icon-partly-cloudy.webp" temp1="68" temp2="57"/>
-          <ForcastCard day="Sat" imagePath="/images/icon-storm.webp" temp1="68" temp2="57"/>
-          <ForcastCard day="Sun" imagePath="/images/icon-snow.webp" temp1="68" temp2="57"/>
-          <ForcastCard day="Mon" imagePath="/images/icon-fog.webp" temp1="68" temp2="57"/>
-        </section>
-        </Suspense>
-      </section>
-
-      {/* hour forcast  group*/}
-      <section className="flex flex-col gap-3 md:gap-8 mx-auto bg-neutral-800/70 rounded-xl border border-neutral-700/40 w-full row-span-5 mt-4 md:mt-0 md:max-h-[645px] mb-6">
-        <div className="flex justify-between mt-2 md:max-h-10 mx-3  items-center md:mt-6">
-          <h4>Hourly forcast</h4>
-          <Dropdown />
-        </div>
-        <Suspense fallback={<HourForcastSkeleton/>}>
-          <div className="flex flex-col gap-2.5 justify-between mx-3 items-center mb-3 md:gap-4">
-
-          <HourForcastCard imagePath="/images/icon-rain.webp" time="3 PM" temperature={68}/>
-          <HourForcastCard imagePath="/images/icon-rain.webp" time="3 PM" temperature={20}/>
-          <HourForcastCard imagePath="/images/icon-sunny.webp" time="3 PM" temperature={68}/>
-          <HourForcastCard imagePath="/images/icon-rain.webp" time="3 PM" temperature={40}/>
-          <HourForcastCard imagePath="/images/icon-rain.webp" time="3 PM" temperature={25}/>
-          <HourForcastCard imagePath="/images/icon-storm.webp" time="3 PM" temperature={10}/>
-          <HourForcastCard imagePath="/images/icon-snow.webp" time="3 PM" temperature={33}/>
-          <HourForcastCard imagePath="/images/icon-fog.webp" time="3 PM" temperature={10}/>
-        </div>
-        </Suspense>
-      </section>
+      <footer>
+        <p className="text-sm text-neutral-50/30 text-center mb-3">
+          Created by <strong>Isaiah Alex</strong> · Weather data by{" "}
+          <a
+            href="https://open-meteo.com"
+            target="_blank"
+            rel="noreferrer"
+            className="underline hover:text-neutral-50/60"
+          >
+            Open-Meteo.com
+          </a>
+        </p>
+      </footer>
     </div>
-    <footer>
-      <p className="text-sm text-neutral-50/30 text-center mb-3">Created by <strong>Isaiah Alex</strong></p>
-    </footer>
-  </div>);
-}
- 
+  );
+};
+
 export default Home;
